@@ -1,47 +1,64 @@
 # Local AI Agent — Cloud First / Local Fallback
 
-This repository contains the corrected runtime architecture for the MSP AI Agent.
+This is the corrected **v1.1.1** runtime architecture for the MSP AI Agent.
 
-## Runtime priority
+## Strict runtime priority
 
 1. **Cloud inference first** for normal chat, code, document, research and vision tasks.
-2. **Cloud embeddings first** when enabled.
-3. **Online research** when current information is required.
-4. **Local quick answers/cache/RAG** where they can answer immediately.
-5. **Ollama local models last** as fallback when cloud is unavailable, times out, is rate-limited, or is explicitly disabled.
+2. **Cloud-native web search first** for current-information/research routes when enabled.
+3. **Cloud embeddings first** for document indexing/RAG when enabled.
+4. **Local SearXNG, quick answers, cache/RAG and Ollama only as explicit or fallback paths.**
 
-The earlier Hardened v4 implementation instantiated `OllamaClient` directly from the CLI, GUI, router and document indexer. v1.1 replaces that coupling with a provider gateway.
+The earlier Hardened v4 implementation instantiated `OllamaClient` directly and could run local quick/search paths before cloud. v1.1.1 replaces that coupling with a provider gateway and keeps the normal request path cloud-first end-to-end.
 
-## Speed behavior
+## Speed / failover behavior
 
-Cloud calls use a short connect timeout, bounded read timeout, one retry by default, and a circuit breaker. Repeated cloud failures do not force every request to wait for a dead provider; the agent temporarily opens the cloud circuit and immediately uses the local fallback.
+Defaults are intentionally aggressive:
 
-## Setup
+- cloud connect timeout: 3 seconds;
+- cloud read timeout: 15 seconds;
+- automatic cloud retries: 0;
+- circuit breaker opens after 2 consecutive cloud failures;
+- circuit remains open for 30 seconds;
+- while open, requests skip the failing cloud endpoint and go directly to local fallback.
+
+All values are configurable in `.env`.
+
+## First setup
 
 ```powershell
 Copy-Item .env.example .env
 notepad .env
 # Set CLOUD_API_KEY
 .\scripts\setup.ps1
+.\scripts\healthcheck.ps1
 .\scripts\run.ps1
 ```
 
 Never commit `.env` or API keys.
 
-## Existing Hardened v4 installation
+## Upgrade an existing Hardened v4 project
 
-Run the migration script from this corrected repository/package:
+From this corrected package/repository:
 
 ```powershell
 .\scripts\migrate-v4-to-cloud-first.ps1 -TargetRoot "C:\Projects\msp-local-ai-agent-fresh"
 ```
 
-The migration backs up and replaces only the provider/routing files and preserves learned answers, uploaded documents, caches, knowledge and MSP data.
+The migration backs up the files it replaces and preserves learned answers, uploaded documents, caches, knowledge and MSP data.
 
-## Defaults
+## Single-script installer / updater
 
-- Fast/document/research/vision cloud model: `gpt-5.6-luna`
-- Deep/code cloud model: `gpt-5.6-terra`
+```powershell
+.\installers\Install-MSP-AI-Agent-CloudFirst-v1.1.1.ps1
+```
+
+Use `-InstallPrereqs` if Python is missing. Use `-InstallLocalFallback` if you also want Ollama installed as the fallback provider.
+
+## Default model routing
+
+- Cloud fast/document/research/vision: `gpt-5.6-luna`
+- Cloud deep/code: `gpt-5.6-terra`
 - Local fast: `llama3.2:3b`
 - Local deep: `qwen2.5:7b`
 - Local code: `qwen2.5-coder:7b`
@@ -49,7 +66,10 @@ The migration backs up and replaces only the provider/routing files and preserve
 
 All model names are configurable in `.env`.
 
-## Branches
+## Explicit local commands
 
-- `main` — desktop/source baseline
-- `android-apk` — Android source/build/APK deliverables
+- `/quick <query>` — local quick-answer database
+- `/search <query>` — local SearXNG research path
+- `/models` / `/pull <model>` — local Ollama management
+
+These commands are explicit; they are not inserted ahead of cloud on normal requests.

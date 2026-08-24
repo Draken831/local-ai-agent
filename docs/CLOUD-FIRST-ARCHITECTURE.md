@@ -1,21 +1,37 @@
 # Cloud-First Architecture
 
-## Request path
+## Strict request order
 
 ```text
-request
-  -> quick-answer check
+normal request
   -> task/model route
   -> cloud provider
+       research route -> cloud web search tool (when enabled)
        success -> response
-       timeout/network/429/5xx/config failure -> failure counter
-       repeated failures -> temporary cloud circuit open
-  -> local Ollama fallback
+       failure/timeout/rate-limit -> circuit breaker
+  -> local fallback layer
+       local quick/cache/RAG or SearXNG when explicitly requested/needed
+       Ollama fallback
   -> response or final provider error
 ```
 
-The cloud path uses a short connect timeout, bounded read timeout, one retry by default, and a circuit breaker. Repeated cloud failures therefore do not make every request wait for a dead provider.
+Local quick answers and local SearXNG are **not** automatically executed before cloud on the normal request path.
 
-The settings loader understands both the new `CLOUD_*`/`LOCAL_*` names and the earlier Hardened v4 `MODEL_*`, `VISION_MODEL`, `EMBEDDING_MODEL`, `OLLAMA_MODEL`, `REQUEST_TIMEOUT`, and `MAX_RESPONSE_TOKENS` names. Existing v4 values become local fallback values.
+## Speed controls
 
-`.env` is excluded from source control. API keys are read from environment variables or `.env` only.
+- 3-second default cloud connect timeout
+- 15-second default cloud read timeout
+- zero automatic retries by default
+- circuit breaker after repeated failures
+- immediate local fallback while the cloud circuit is open
+
+## Backward compatibility
+
+The loader still understands Hardened v4 names such as `MODEL_FAST`, `MODEL_DEEP`, `MODEL_CODE`,
+`MODEL_DOC`, `MODEL_RESEARCH`, `VISION_MODEL`, `EMBEDDING_MODEL`, `OLLAMA_MODEL`,
+`REQUEST_TIMEOUT`, and `MAX_RESPONSE_TOKENS`. Those values are treated as local fallback settings.
+
+## Security
+
+`.env` remains excluded from source control. API keys are loaded from environment variables or `.env`
+and are never stored in the repository.

@@ -34,6 +34,7 @@ def _order(env) -> tuple[str, ...]:
 @dataclass
 class Settings:
     root: Path
+
     ai_provider_order: tuple[str, ...]
     cloud_ai_enabled: bool
     cloud_api_style: str
@@ -45,6 +46,7 @@ class Settings:
     cloud_circuit_breaker_failures: int
     cloud_circuit_breaker_seconds: int
     cloud_max_response_tokens: int
+    cloud_web_search_enabled: bool
     cloud_model_fast: str
     cloud_model_deep: str
     cloud_model_code: str
@@ -54,6 +56,7 @@ class Settings:
     cloud_model_force: str
     cloud_embeddings_enabled: bool
     cloud_embedding_model: str
+
     local_fallback_enabled: bool
     ollama_base_url: str
     local_request_timeout: int
@@ -65,13 +68,16 @@ class Settings:
     local_model_vision: str
     local_model_force: str
     local_embedding_model: str
+
     dynamic_model_routing: bool
     dynamic_model_announce: bool
+
     searxng_base_url: str
     online_first_mode: bool
     online_research_max_results: int
     online_research_fetch_top: int
     allow_private_urls: bool
+
     document_max_chars: int
     document_context_chars: int
     document_cache_enabled: bool
@@ -129,6 +135,7 @@ class Settings:
 def load_settings(root: Path | None = None) -> Settings:
     root = (root or Path.cwd()).resolve()
     env = dotenv_values(root / ".env") if (root / ".env").exists() else {}
+
     old_fast = _get(env, "MODEL_FAST", _get(env, "OLLAMA_MODEL", "llama3.2:3b"))
     old_deep = _get(env, "MODEL_DEEP", "qwen2.5:7b")
     old_code = _get(env, "MODEL_CODE", "qwen2.5-coder:7b")
@@ -137,6 +144,7 @@ def load_settings(root: Path | None = None) -> Settings:
     old_force = _get(env, "MODEL_FORCE", "")
     old_vision = _get(env, "VISION_MODEL", "llama3.2-vision")
     old_embedding = _get(env, "EMBEDDING_MODEL", "nomic-embed-text")
+
     return Settings(
         root=root,
         ai_provider_order=_order(env),
@@ -146,10 +154,11 @@ def load_settings(root: Path | None = None) -> Settings:
         cloud_api_key=_get(env, "CLOUD_API_KEY", _get(env, "OPENAI_API_KEY", "")),
         cloud_timeout_connect=_int(env, "CLOUD_TIMEOUT_CONNECT", 3),
         cloud_timeout_read=_int(env, "CLOUD_TIMEOUT_READ", 15),
-        cloud_retries=_int(env, "CLOUD_RETRIES", 1),
-        cloud_circuit_breaker_failures=_int(env, "CLOUD_CIRCUIT_BREAKER_FAILURES", 3),
+        cloud_retries=_int(env, "CLOUD_RETRIES", 0),
+        cloud_circuit_breaker_failures=_int(env, "CLOUD_CIRCUIT_BREAKER_FAILURES", 2),
         cloud_circuit_breaker_seconds=_int(env, "CLOUD_CIRCUIT_BREAKER_SECONDS", 30),
         cloud_max_response_tokens=_int(env, "CLOUD_MAX_RESPONSE_TOKENS", _int(env, "MAX_RESPONSE_TOKENS", 900)),
+        cloud_web_search_enabled=_bool(env, "CLOUD_WEB_SEARCH_ENABLED", True),
         cloud_model_fast=_get(env, "CLOUD_MODEL_FAST", "gpt-5.6-luna"),
         cloud_model_deep=_get(env, "CLOUD_MODEL_DEEP", "gpt-5.6-terra"),
         cloud_model_code=_get(env, "CLOUD_MODEL_CODE", "gpt-5.6-terra"),
@@ -159,6 +168,7 @@ def load_settings(root: Path | None = None) -> Settings:
         cloud_model_force=_get(env, "CLOUD_MODEL_FORCE", ""),
         cloud_embeddings_enabled=_bool(env, "CLOUD_EMBEDDINGS_ENABLED", True),
         cloud_embedding_model=_get(env, "CLOUD_EMBEDDING_MODEL", "text-embedding-3-small"),
+
         local_fallback_enabled=_bool(env, "LOCAL_FALLBACK_ENABLED", True),
         ollama_base_url=_get(env, "OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/"),
         local_request_timeout=_int(env, "LOCAL_REQUEST_TIMEOUT", _int(env, "REQUEST_TIMEOUT", 180)),
@@ -170,13 +180,16 @@ def load_settings(root: Path | None = None) -> Settings:
         local_model_vision=_get(env, "LOCAL_MODEL_VISION", old_vision),
         local_model_force=_get(env, "LOCAL_MODEL_FORCE", old_force),
         local_embedding_model=_get(env, "LOCAL_EMBEDDING_MODEL", old_embedding),
+
         dynamic_model_routing=_bool(env, "DYNAMIC_MODEL_ROUTING", True),
         dynamic_model_announce=_bool(env, "DYNAMIC_MODEL_ANNOUNCE", True),
+
         searxng_base_url=_get(env, "SEARXNG_BASE_URL", ""),
-        online_first_mode=_bool(env, "ONLINE_FIRST_MODE", True),
+        online_first_mode=_bool(env, "ONLINE_FIRST_MODE", False),
         online_research_max_results=_int(env, "ONLINE_RESEARCH_MAX_RESULTS", 5),
         online_research_fetch_top=_int(env, "ONLINE_RESEARCH_FETCH_TOP", 3),
         allow_private_urls=_bool(env, "ALLOW_PRIVATE_URLS", False),
+
         document_max_chars=_int(env, "DOCUMENT_MAX_CHARS", 16000),
         document_context_chars=_int(env, "DOCUMENT_CONTEXT_CHARS", 7000),
         document_cache_enabled=_bool(env, "DOCUMENT_CACHE_ENABLED", True),

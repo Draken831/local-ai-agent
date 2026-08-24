@@ -1,21 +1,23 @@
-# Python
+# Secrets and runtime configuration
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+*.pfx
+*.p12
+*secret*
+*token*
+
+# Python/runtime
 .venv/
 venv/
 __pycache__/
 *.py[cod]
-*.egg-info/
+.pytest_cache/
 build/
 dist/
-
-# Local configuration / secrets
-.env
-.env.*
-!.env.example
-*.pfx
-*.p12
-*.key
-*.pem
-secrets/
+*.egg-info/
 
 # Runtime data
 logs/
@@ -23,18 +25,16 @@ data/uploads/
 data/cache/
 data/vectorstore/
 data/runtime/
-*.log
+data/brain/backups/
 
-# IDE / OS
+# IDE/OS
 .vscode/
 .idea/
 .DS_Store
 Thumbs.db
 
-# Generated installers / binaries on main
-*.exe
-*.msi
+# Android build outputs
+android/.gradle/
+android/**/build/
 *.apk
-
-# SearXNG generated secret settings
-local-searxng-fresh/searxng/settings.yml
+*.aab
