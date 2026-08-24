@@ -1,40 +1,55 @@
-# Local AI Agent
+# Local AI Agent — Cloud First / Local Fallback
 
-Cloud-first, local-fallback MSP-focused AI agent project optimized for response speed and resilience.
+This repository contains the corrected runtime architecture for the MSP AI Agent.
 
-## Execution priority
+## Runtime priority
 
-The intended runtime order is:
+1. **Cloud inference first** for normal chat, code, document, research and vision tasks.
+2. **Cloud embeddings first** when enabled.
+3. **Online research** when current information is required.
+4. **Local quick answers/cache/RAG** where they can answer immediately.
+5. **Ollama local models last** as fallback when cloud is unavailable, times out, is rate-limited, or is explicitly disabled.
 
-1. **Cloud/API first** for the fastest normal responses and externally hosted reasoning/inference.
-2. **Online research/web sources** when the task needs current information.
-3. **Local quick-answer/cache/RAG paths** when they can answer immediately without a model call.
-4. **Local Ollama last** as an offline/privacy/resilience fallback when cloud services are unavailable, blocked, too slow, or explicitly bypassed.
+The earlier Hardened v4 implementation instantiated `OllamaClient` directly from the CLI, GUI, router and document indexer. v1.1 replaces that coupling with a provider gateway.
 
-This is **not** intended to be a local-first inference architecture.
+## Speed behavior
 
-## Current baseline
+Cloud calls use a short connect timeout, bounded read timeout, one retry by default, and a circuit breaker. Repeated cloud failures do not force every request to wait for a dead provider; the agent temporarily opens the cloud circuit and immediately uses the local fallback.
 
-This repository is being published from the Hardened v4 project baseline, but its routing layer is being adapted from the earlier local-first implementation to the cloud-first priority above.
+## Setup
 
-Key capabilities:
-- Cloud/API primary inference path
-- Local Ollama fallback backend
-- Dynamic routing for fast, deep, code, document, research, and vision workloads
-- CLI and GUI
-- Web research support
-- URL fetch support with private/internal policy controls
-- PDF/DOCX/XLSX/PPTX/image parsing and OCR
-- Document indexing/RAG
-- Quick-answer/learning system
-- MSP-focused knowledge and script-generation standards
-- PowerShell code-signing helpers
+```powershell
+Copy-Item .env.example .env
+notepad .env
+# Set CLOUD_API_KEY
+.\scripts\setup.ps1
+.\scripts\run.ps1
+```
+
+Never commit `.env` or API keys.
+
+## Existing Hardened v4 installation
+
+Run the migration script from this corrected repository/package:
+
+```powershell
+.\scripts\migrate-v4-to-cloud-first.ps1 -TargetRoot "C:\Projects\msp-local-ai-agent-fresh"
+```
+
+The migration backs up and replaces only the provider/routing files and preserves learned answers, uploaded documents, caches, knowledge and MSP data.
+
+## Defaults
+
+- Fast/document/research/vision cloud model: `gpt-5.6-luna`
+- Deep/code cloud model: `gpt-5.6-terra`
+- Local fast: `llama3.2:3b`
+- Local deep: `qwen2.5:7b`
+- Local code: `qwen2.5-coder:7b`
+- Local vision: `llama3.2-vision`
+
+All model names are configurable in `.env`.
 
 ## Branches
 
-- `main` — Windows/desktop source baseline
+- `main` — desktop/source baseline
 - `android-apk` — Android source/build/APK deliverables
-
-## Security
-
-Runtime state and sensitive material must not be committed, including `.env`, API keys, virtual environments, caches, logs, uploaded documents, local vector stores, PFX/private signing keys, and generated secrets.
