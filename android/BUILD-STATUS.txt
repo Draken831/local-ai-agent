@@ -1,15 +1,21 @@
-Build status for this generated package
-=======================================
-Source package: COMPLETE
+Build status for Android branch
+===============================
+Architecture target: CLOUD FIRST / LOCAL FALLBACK
+Source package baseline: COMPLETE (earlier v1.0.0 source package)
+Cloud-first Android correction: REQUIRED FOR NEXT SOURCE BUILD
 Android SDK/build-tools in generation environment: NOT AVAILABLE
 Compiled APK: NOT PRODUCED IN THIS ENVIRONMENT
 
-Reason:
-The generation environment contained Java 21 but no Android SDK, aapt/aapt2, d8, apksigner, sdkmanager or Gradle installation.
+Cloud-first requirement for the next Android source build:
+- Primary inference: configured cloud/API provider
+- Short cloud connect/read timeouts with bounded retry
+- Circuit-breaker/fail-fast behavior
+- Local/on-device or LAN Ollama only as fallback
+- No API keys committed to GitHub or embedded in the APK
+- Android secure storage / runtime configuration must be used for credentials
 
-Target configuration:
+Target configuration recorded for prior Android package:
 - Android 16 / API 36
 - Android Gradle Plugin 9.3.0
 
-Expected APK branch purpose:
-This branch is reserved for the Android source/build artifacts and the installable APK once a signed APK is actually produced.
+This branch remains reserved for Android source/build artifacts and the signed installable APK once a real APK is produced.
