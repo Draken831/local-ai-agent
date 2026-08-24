@@ -1,0 +1,68 @@
+Fresh MSP Local AI Agent Hardened v4 Validation Report
+======================================================
+
+Validated artifact:
+Fresh-MSP-Local-AI-Agent-Setup-Hardened-v4.ps1
+
+SHA256:
+96c6fe6e5b5a5026094eb16d9bb991da1f03705adae3bcb6be07221d735f21d7
+
+Why v4 exists:
+- v3 contained a fatal PowerShell parser issue in the string: "Model pull failed for $Model: $text".
+- In PowerShell double-quoted strings, "$Model:" is parsed as a scoped variable reference and throws InvalidVariableReferenceWithDrive.
+- v4 changes this to "Model pull failed for $($Model): $text".
+
+Validation performed:
+1. Top-level script BOM check
+   PASS - no UTF-8 BOM detected.
+
+2. PowerShell variable-colon parser trap scan
+   Pattern checked: $Variable:
+   Excluded valid scopes: $env:, $global:, $script:, $local:, $private:, $using:, $host:, $psstyle:
+   PASS - 0 unsafe matches.
+
+3. PowerShell Test-Path boolean parser trap scan
+   Pattern checked: if(Test-Path ... -and / -or ...)
+   PASS - 0 unsafe matches.
+
+4. PowerShell 7-only encoding check
+   Checked for utf8NoBOM / -Encoding utf8NoBOM usage.
+   PASS - 0 matches.
+
+5. ProgramFiles(x86) variable issue check
+   Checked for direct use of $env:ProgramFiles(x86).
+   PASS - 0 matches. Script uses [Environment]::GetEnvironmentVariable("ProgramFiles(x86)").
+
+6. Generated file extraction
+   Extracted 31 files from WriteFile calls into a temporary test folder.
+   PASS - extraction completed.
+
+7. Generated file BOM check
+   PASS - 0 generated files contained UTF-8 BOM.
+
+8. Generated pyproject.toml validation
+   Parsed with Python tomllib.
+   PASS.
+
+9. Generated JSON validation
+   Parsed all generated JSON data files with Python json module.
+   PASS - 4 JSON files validated.
+
+10. Generated Python syntax validation
+    Compiled generated src/*.py files using py_compile.
+    PASS - 13 Python files compiled.
+
+11. Generated PowerShell script static scans
+    Scanned generated scripts/*.ps1 plus main installer for:
+      - $Variable: unsafe parser trap
+      - bare if(Test-Path ... -and/-or ...) trap
+    PASS - 0 unsafe matches.
+
+12. Router override validation by source inspection
+    Confirmed router.py uses settings.model_deep/settings.model_code/etc. instead of old hardcoded MODES dict.
+    PASS.
+
+Limitations:
+- Validation environment did not provide Windows PowerShell, winget, Docker Desktop, or Ollama.
+- Live execution of those Windows-specific components must still be performed on the target Windows PC.
+- The v4 installer avoids the previously detected static parser failures before live execution.
