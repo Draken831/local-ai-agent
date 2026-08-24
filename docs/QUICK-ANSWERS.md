@@ -2,9 +2,9 @@
 
 The package includes **97 curated quick-answer rules** in:
 
-`data/brain/quick_answers.json.gz`
+`data/brain/quick_answers.bundle/`
 
-The bundle is compressed only to keep distribution/GitHub transfer compact. The agent loads it transparently.
+The curated database is gzip-compressed JSON encoded as base64 and split across small numbered text parts so GitHub transfer remains verifiable. The agent joins, decodes and loads the parts transparently.
 
 Local customization remains easy:
 
