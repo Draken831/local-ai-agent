@@ -25,7 +25,7 @@ $replace = @(
     "src\msp_agent\launcher.py",
     "src\msp_agent\quick_answers.py",
     "src\msp_agent\doc_indexer.py",
-    "data\brain\quick_answers.json.gz",
+    "data\brain\quick_answers.bundle",
     "scripts\setup.ps1",
     "scripts\run.ps1",
     "scripts\run-cli.ps1",
