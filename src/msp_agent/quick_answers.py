@@ -56,7 +56,7 @@ def modular_path():
 
 
 def bundle_path():
-    return Path.cwd() / "data" / "brain" / "quick_answers.json.gz"
+    return Path.cwd() / "data" / "brain" / "quick_answers.bundle"
 
 
 def _load_json_file(file_path: Path) -> list[dict]:
@@ -70,12 +70,18 @@ def _load_json_file(file_path: Path) -> list[dict]:
 def load_answers():
     items = []
 
-    # Bundled curated database.
+    # Bundled curated database, split into small verifiable text parts.
     bundle = bundle_path()
     if bundle.exists():
         try:
+            import base64
             import gzip
-            data = json.loads(gzip.decompress(bundle.read_bytes()).decode("utf-8"))
+            encoded = "".join(
+                part.read_text(encoding="ascii").strip()
+                for part in sorted(bundle.glob("part-*.txt"))
+            )
+            compressed = base64.b64decode(encoded)
+            data = json.loads(gzip.decompress(compressed).decode("utf-8"))
             if isinstance(data, list):
                 items.extend(x for x in data if isinstance(x, dict))
         except Exception:
