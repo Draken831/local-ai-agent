@@ -22,11 +22,16 @@ $replace = @(
     "src\msp_agent\llm.py",
     "src\msp_agent\cli.py",
     "src\msp_agent\gui.py",
+    "src\msp_agent\launcher.py",
+    "src\msp_agent\quick_answers.py",
     "src\msp_agent\doc_indexer.py",
+    "data\brain\quick_answers.json.gz",
     "scripts\setup.ps1",
     "scripts\run.ps1",
+    "scripts\run-cli.ps1",
     "scripts\run-gui.ps1",
-    "scripts\healthcheck.ps1"
+    "scripts\healthcheck.ps1",
+    "Start-MSP-AI-Agent.cmd"
 )
 
 foreach($relative in $replace){
@@ -83,7 +88,7 @@ if(-not (Test-Path $envFile)){
         [System.IO.File]::WriteAllText($envFile,$text,$enc)
     }
 
-    # These values define the architecture. Enforce them during v4 -> v1.1.1 migration.
+    # These values define the architecture. Enforce them during v4 -> v1.2.0 migration.
     Set-EnvValue "AI_PROVIDER_ORDER" "cloud,local"
     Set-EnvValue "CLOUD_AI_ENABLED" "true"
     Set-EnvValue "CLOUD_WEB_SEARCH_ENABLED" "true"
@@ -112,3 +117,4 @@ Write-Host "Backup: $backupRoot"
 Write-Host "Architecture enforced: cloud -> local"
 Write-Host "Edit $envFile and set CLOUD_API_KEY if it is blank."
 Write-Host "Then run: .\scripts\healthcheck.ps1"
+Write-Host "Start the GUI with: .\scripts\run.ps1"
