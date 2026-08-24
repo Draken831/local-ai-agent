@@ -35,3 +35,20 @@ The loader still understands Hardened v4 names such as `MODEL_FAST`, `MODEL_DEEP
 
 `.env` remains excluded from source control. API keys are loaded from environment variables or `.env`
 and are never stored in the repository.
+
+## Interface architecture
+
+The GUI is the normal application interface. `msp_agent.launcher` starts the GUI unless `--cli` is explicitly supplied.
+
+```text
+run.ps1 / msp-agent / Desktop shortcut
+          |
+          v
+    msp_agent.launcher
+          |
+          +--> GUI (default)
+          |
+          +--> CLI only with --cli
+```
+
+The GUI invokes the same cloud-first `AIClient` gateway as the CLI; it is not a separate agent process.
