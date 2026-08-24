@@ -88,4 +88,4 @@ These commands are explicit; they are not inserted ahead of cloud on normal requ
 
 ## Quick-answer knowledge
 
-The package includes **97 curated quick-answer rules** in `data/brain/quick_answers.json.gz`, with typo-tolerant/natural-variation matching and human-editable local override support. See `docs/QUICK-ANSWERS.md`.
+The package includes **97 curated quick-answer rules** in `data/brain/quick_answers.bundle/`, with typo-tolerant/natural-variation matching and human-editable local override support. See `docs/QUICK-ANSWERS.md`.
