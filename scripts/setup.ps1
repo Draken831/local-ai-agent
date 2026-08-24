@@ -69,3 +69,21 @@ foreach($file in $pythonFiles) {
 }
 
 Write-Host "Setup complete. Cloud is primary when CLOUD_API_KEY is configured." -ForegroundColor Green
+
+# Create/update a Desktop shortcut for the default GUI.
+try {
+    $desktop = [Environment]::GetFolderPath("Desktop")
+    if($desktop){
+        $shortcutPath = Join-Path $desktop "MSP AI Agent.lnk"
+        $shell = New-Object -ComObject WScript.Shell
+        $shortcut = $shell.CreateShortcut($shortcutPath)
+        $shortcut.TargetPath = "powershell.exe"
+        $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$ProjectRoot\scripts\run.ps1`""
+        $shortcut.WorkingDirectory = $ProjectRoot
+        $shortcut.Description = "MSP AI Agent - Cloud First GUI"
+        $shortcut.Save()
+        Write-Host "Desktop shortcut created: $shortcutPath" -ForegroundColor Green
+    }
+}catch{
+    Write-Warning "Could not create Desktop shortcut: $($_.Exception.Message)"
+}
