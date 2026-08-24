@@ -1,0 +1,15 @@
+Build status for this generated package
+=======================================
+Source package: COMPLETE
+Android SDK/build-tools in generation environment: NOT AVAILABLE
+Compiled APK: NOT PRODUCED IN THIS ENVIRONMENT
+
+Reason:
+The generation environment contained Java 21 but no Android SDK, aapt/aapt2, d8, apksigner, sdkmanager or Gradle installation.
+
+Target configuration:
+- Android 16 / API 36
+- Android Gradle Plugin 9.3.0
+
+Expected APK branch purpose:
+This branch is reserved for the Android source/build artifacts and the installable APK once a signed APK is actually produced.
