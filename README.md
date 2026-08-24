@@ -1,27 +1,30 @@
-# Local AI Agent
+# Local AI Agent — Android Branch
 
-Cloud-first, local-fallback MSP-focused AI agent project optimized for response speed and resilience.
+This branch is reserved for Android source/build/APK deliverables and follows the same **v1.1.1 strict cloud-first / local-fallback** provider contract as `main`.
 
-## Execution priority
+## Runtime priority
 
-The intended runtime order is:
+1. Cloud inference first.
+2. Cloud-native web search for research/current-information routes when supported.
+3. Local/on-device or LAN services only as explicit or fallback paths.
+4. Ollama/local model inference last.
 
-1. **Cloud/API first** for the fastest normal responses and externally hosted reasoning/inference.
-2. **Online research/web sources** when the task needs current information.
-3. **Local quick-answer/cache/RAG paths** when they can answer immediately without a model call.
-4. **Local Ollama last** as an offline/privacy/resilience fallback when cloud services are unavailable, blocked, too slow, or explicitly bypassed.
+The Android implementation must not execute local quick-answer, local search, or local model paths ahead of a healthy configured cloud provider.
 
-This is **not** intended to be a local-first inference architecture.
+## Speed / failover contract
 
-## Current baseline
-
-This branch contains Android source/build deliverables and follows the same cloud-first, local-fallback routing strategy as `main`.
-
-## Branches
-
-- `main` — Windows/desktop source baseline
-- `android-apk` — Android source/build/APK deliverables
+- short cloud connect/read timeouts;
+- zero automatic cloud retries by default;
+- circuit breaker after repeated cloud failures;
+- local fallback only after cloud is unavailable, fails, times out, or is explicitly bypassed.
 
 ## Security
 
-Runtime state and sensitive material must not be committed, including `.env`, API keys, virtual environments, caches, logs, uploaded documents, local vector stores, PFX/private signing keys, generated secrets, and Android signing keystores.
+No cloud API key may be committed to GitHub or embedded as a plaintext constant in an APK. Android credentials must be supplied at runtime and stored using Android secure storage mechanisms.
+
+## Build status
+
+The provider architecture is corrected and documented. A real compiled APK is **not yet present on this branch** because the prior generation environment did not have the Android SDK/build tools required to compile it.
+
+- `main` — corrected desktop/runtime source v1.1.1
+- `android-apk` — Android source/build/APK deliverables
