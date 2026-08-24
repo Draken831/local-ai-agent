@@ -1,0 +1,40 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+
+# Local configuration / secrets
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.key
+*.pem
+secrets/
+
+# Runtime data
+logs/
+data/uploads/
+data/cache/
+data/vectorstore/
+data/runtime/
+*.log
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Generated installers / binaries on main
+*.exe
+*.msi
+*.apk
+
+# SearXNG generated secret settings
+local-searxng-fresh/searxng/settings.yml
