@@ -24,6 +24,7 @@ $replace = @(
     "src\msp_agent\gui.py",
     "src\msp_agent\launcher.py",
     "src\msp_agent\quick_answers.py",
+    "src\msp_agent\learning.py",
     "src\msp_agent\doc_indexer.py",
     "data\brain\quick_answers.bundle",
     "scripts\setup.ps1",
@@ -88,7 +89,7 @@ if(-not (Test-Path $envFile)){
         [System.IO.File]::WriteAllText($envFile,$text,$enc)
     }
 
-    # These values define the architecture. Enforce them during v4 -> v1.2.0 migration.
+    # These values define the architecture. Enforce them during v4 -> v1.3.0 migration.
     Set-EnvValue "AI_PROVIDER_ORDER" "cloud,local"
     Set-EnvValue "CLOUD_AI_ENABLED" "true"
     Set-EnvValue "CLOUD_WEB_SEARCH_ENABLED" "true"

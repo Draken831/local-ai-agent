@@ -148,7 +148,7 @@ def load_settings(root: Path | None = None) -> Settings:
     return Settings(
         root=root,
         ai_provider_order=_order(env),
-        cloud_ai_enabled=_bool(env, "CLOUD_AI_ENABLED", True),
+        cloud_ai_enabled=_bool(env, "CLOUD_AI_ENABLED", _bool(env, "CLOUD_FIRST_MODE", True)),
         cloud_api_style=_get(env, "CLOUD_API_STYLE", "responses").lower(),
         cloud_api_base_url=_get(env, "CLOUD_API_BASE_URL", "https://api.openai.com/v1").rstrip("/"),
         cloud_api_key=_get(env, "CLOUD_API_KEY", _get(env, "OPENAI_API_KEY", "")),
@@ -169,7 +169,7 @@ def load_settings(root: Path | None = None) -> Settings:
         cloud_embeddings_enabled=_bool(env, "CLOUD_EMBEDDINGS_ENABLED", True),
         cloud_embedding_model=_get(env, "CLOUD_EMBEDDING_MODEL", "text-embedding-3-small"),
 
-        local_fallback_enabled=_bool(env, "LOCAL_FALLBACK_ENABLED", True),
+        local_fallback_enabled=_bool(env, "LOCAL_FALLBACK_ENABLED", _bool(env, "FALLBACK_TO_LOCAL", True)),
         ollama_base_url=_get(env, "OLLAMA_BASE_URL", "http://127.0.0.1:11434").rstrip("/"),
         local_request_timeout=_int(env, "LOCAL_REQUEST_TIMEOUT", _int(env, "REQUEST_TIMEOUT", 180)),
         local_model_fast=_get(env, "LOCAL_MODEL_FAST", old_fast),

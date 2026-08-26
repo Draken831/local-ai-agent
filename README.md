@@ -1,6 +1,6 @@
 # MSP AI Agent — Cloud First / GUI Default
 
-This is the corrected **v1.2.0** runtime architecture for the MSP AI Agent.
+This is the corrected **v1.3.0** runtime architecture for the MSP AI Agent.
 
 ## Strict runtime priority
 
@@ -9,7 +9,7 @@ This is the corrected **v1.2.0** runtime architecture for the MSP AI Agent.
 3. **Cloud embeddings first** for document indexing/RAG when enabled.
 4. **Local SearXNG, quick answers, cache/RAG and Ollama only as explicit or fallback paths.**
 
-The earlier Hardened v4 implementation instantiated `OllamaClient` directly and could run local quick/search paths before cloud. v1.2.0 replaces that coupling with a provider gateway and keeps the normal request path cloud-first end-to-end.
+The earlier Hardened v4 implementation instantiated `OllamaClient` directly and could run local quick/search paths before cloud. v1.3.0 replaces that coupling with a provider gateway and keeps the normal request path cloud-first end-to-end.
 
 ## Speed / failover behavior
 
@@ -34,7 +34,7 @@ The agent now launches the **GUI by default**. You do not start the CLI and GUI 
 - Desktop shortcut created by setup -> GUI
 - `msp-agent --cli` or `.\scripts\run-cli.ps1` -> explicit diagnostic/admin CLI
 
-The GUI includes chat, route selection, provider status, document attachment, image attachment, explicit local quick answers, and explicit local SearXNG search.
+The GUI includes chat, route selection, provider status, document attachment, image attachment, explicit local quick answers, a **Learn Quick** editor, and explicit local SearXNG search.
 
 ## First setup
 
@@ -62,7 +62,7 @@ The migration backs up the files it replaces and preserves learned answers, uplo
 ## Single-script installer / updater
 
 ```powershell
-.\installers\Install-MSP-AI-Agent-CloudFirst-v1.2.0.ps1
+.\installers\Install-MSP-AI-Agent-CloudFirst-v1.3.0.ps1
 ```
 
 Use `-InstallPrereqs` if Python is missing. Use `-InstallLocalFallback` if you also want Ollama installed as the fallback provider.
@@ -88,4 +88,20 @@ These commands are explicit; they are not inserted ahead of cloud on normal requ
 
 ## Quick-answer knowledge
 
-The package includes **97 curated quick-answer rules** in `data/brain/quick_answers.bundle/`, with typo-tolerant/natural-variation matching and human-editable local override support. See `docs/QUICK-ANSWERS.md`.
+The package includes **105 effective quick-answer rules** in `data/brain/quick_answers.bundle/`, with typo-tolerant/natural-variation matching and human-editable local override support. See `docs/QUICK-ANSWERS.md`.
+
+## Latest uploaded project integration
+
+The 2026-08-26 project update has been merged into this baseline without regressing the established cloud-first/GUI-default behavior.
+
+Integrated additions include:
+
+- learning/quick-answer management;
+- 8 additional quick-answer rules from the uploaded Windows project;
+- MSP response/runbook and safe script templates;
+- tool profiles for Active Directory, Microsoft 365 PowerShell, firewall, RMM, web, URL fetch, and Linux;
+- agent profile, tool registry, and learning-policy data;
+- PowerShell code-signing helpers and local-model pull helper;
+- the uploaded cloud-first Windows source retained under `legacy/uploaded-2026-08-26` where its provider modules are superseded by the current gateway.
+
+The uploaded `.env` is intentionally **not committed**. Use `.env.example` and keep live credentials only in `.env`.

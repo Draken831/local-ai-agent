@@ -8,6 +8,7 @@ from pathlib import Path
 from .config import load_settings
 from .document_processor import document_to_context
 from .llm import AIClient
+from .learning import add_item, backup as backup_quick_answers, validate as validate_quick_answers
 from .quick_answers import get_quick_answer
 from .router import choose_model, get_mode, set_mode
 from .web_tools import build_research_context
@@ -32,6 +33,8 @@ class AgentGUI:
         self.status_var = tk.StringVar(value="Ready — cloud first")
         self.attached_path: str | None = None
         self.attached_kind: str | None = None
+        self.last_query: str = ""
+        self.last_answer: str = ""
 
         self._build()
         self._refresh_status_async()
@@ -55,6 +58,7 @@ class AgentGUI:
         ttk.Button(top, text="Attach Document", command=self._attach_document).pack(side=tk.LEFT, padx=3)
         ttk.Button(top, text="Attach Image", command=self._attach_image).pack(side=tk.LEFT, padx=3)
         ttk.Button(top, text="Local Quick", command=self._local_quick).pack(side=tk.LEFT, padx=3)
+        ttk.Button(top, text="Learn Quick", command=self._learn_quick).pack(side=tk.LEFT, padx=3)
         ttk.Button(top, text="Local Search", command=self._local_search).pack(side=tk.LEFT, padx=3)
         ttk.Button(top, text="Clear", command=self._clear).pack(side=tk.RIGHT, padx=3)
 
@@ -82,7 +86,7 @@ class AgentGUI:
 
         self._append(
             "SYSTEM",
-            "MSP AI Agent v1.2.0\n"
+            "MSP AI Agent v1.3.0\n"
             "Default interface: GUI\n"
             "Provider priority: cloud -> local fallback\n"
             "Ctrl+Enter sends the current message.",
@@ -141,6 +145,7 @@ class AgentGUI:
             return
 
         self.input.delete("1.0", tk.END)
+        self.last_query = query
         self._append("YOU", query)
         self.status_var.set("Working…")
 
@@ -171,6 +176,7 @@ class AgentGUI:
                         {"role": "user", "content": prompt},
                     ])
 
+                self.last_answer = answer
                 provider = client.last_provider or "unknown"
                 self.root.after(0, self._append, f"AGENT · {provider.upper()}", answer)
                 self.root.after(
@@ -196,6 +202,64 @@ class AgentGUI:
         else:
             self._append("LOCAL QUICK", "No local quick answer matched.")
             self.status_var.set("No local quick-answer match")
+
+    def _learn_quick(self):
+        dialog = tk.Toplevel(self.root)
+        dialog.title("Learn Quick Answer")
+        dialog.geometry("720x560")
+        dialog.transient(self.root)
+        dialog.grab_set()
+
+        frame = ttk.Frame(dialog, padding=10)
+        frame.pack(fill=tk.BOTH, expand=True)
+
+        ttk.Label(frame, text="Title").pack(anchor="w")
+        title = ttk.Entry(frame)
+        title.pack(fill=tk.X, pady=(0, 8))
+        title.insert(0, (self.last_query or self._get_query() or "Custom quick answer")[:120])
+
+        ttk.Label(frame, text="Trigger aliases (comma-separated; any one may match)").pack(anchor="w")
+        triggers = ttk.Entry(frame)
+        triggers.pack(fill=tk.X, pady=(0, 8))
+        triggers.insert(0, self.last_query or self._get_query())
+
+        ttk.Label(frame, text="Priority").pack(anchor="w")
+        priority = ttk.Entry(frame, width=8)
+        priority.pack(anchor="w", pady=(0, 8))
+        priority.insert(0, "70")
+
+        ttk.Label(frame, text="Answer").pack(anchor="w")
+        answer = tk.Text(frame, height=16, wrap=tk.WORD)
+        answer.pack(fill=tk.BOTH, expand=True, pady=(0, 8))
+        if self.last_answer:
+            answer.insert("1.0", self.last_answer)
+
+        buttons = ttk.Frame(frame)
+        buttons.pack(fill=tk.X)
+
+        def save():
+            title_value = title.get().strip()
+            trigger_values = [x.strip() for x in triggers.get().split(",") if x.strip()]
+            answer_lines = answer.get("1.0", tk.END).rstrip().splitlines()
+            if not title_value or not trigger_values or not any(x.strip() for x in answer_lines):
+                messagebox.showwarning("Learn Quick", "Title, at least one trigger, and an answer are required.", parent=dialog)
+                return
+            try:
+                priority_value = int(priority.get().strip() or "70")
+            except ValueError:
+                messagebox.showwarning("Learn Quick", "Priority must be a number.", parent=dialog)
+                return
+            try:
+                backup_quick_answers()
+                item = add_item(title_value, [trigger_values], answer_lines, priority_value)
+                self.status_var.set(f"Learned quick answer: {item['id']}")
+                self._append("SYSTEM", f"Learned local quick answer: {item['id']}")
+                dialog.destroy()
+            except Exception as exc:
+                messagebox.showerror("Learn Quick", str(exc), parent=dialog)
+
+        ttk.Button(buttons, text="Save Learned Answer", command=save).pack(side=tk.RIGHT)
+        ttk.Button(buttons, text="Cancel", command=dialog.destroy).pack(side=tk.RIGHT, padx=(0, 8))
 
     def _local_search(self):
         query = self._get_query()

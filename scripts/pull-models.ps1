@@ -1,0 +1,8 @@
+$ErrorActionPreference = "Stop"
+function Refresh-ProcessPath { $machine=[Environment]::GetEnvironmentVariable("Path","Machine"); $user=[Environment]::GetEnvironmentVariable("Path","User"); $env:Path="$machine;$user" }
+function Find-Ollama { Refresh-ProcessPath; $candidates=@("$env:LOCALAPPDATA\Programs\Ollama\ollama.exe","$env:ProgramFiles\Ollama\ollama.exe"); foreach($c in $candidates){ if($c -and (Test-Path $c)){ return $c } }; try{ $cmd=Get-Command ollama -ErrorAction Stop; if($cmd.Source){ return $cmd.Source } }catch{}; throw "Ollama not found." }
+function Start-Ollama { $exe=Find-Ollama; try{ Start-Process -FilePath $exe -WindowStyle Hidden -ErrorAction SilentlyContinue | Out-Null }catch{}; for($i=1;$i -le 60;$i++){ try{ Invoke-RestMethod -Uri "http://127.0.0.1:11434/api/tags" -TimeoutSec 5 -ErrorAction Stop | Out-Null; return $exe }catch{ Start-Sleep -Seconds 2 } }; throw "Ollama API not reachable." }
+function Pull-WithRetry($Model){ $exe=Start-Ollama; for($i=1;$i -le 8;$i++){ Write-Host "Pulling $Model (attempt $i/8)..." -ForegroundColor Cyan; $out=& $exe pull $Model 2>&1; if($LASTEXITCODE -eq 0){ Write-Host "Model ready: $Model" -ForegroundColor Green; return }; $txt=$out|Out-String; if($txt -match "upgrade in progress|another operation|locked|temporarily unavailable"){ Start-Sleep -Seconds ([Math]::Min(90,10*$i)); continue }; Write-Host $txt -ForegroundColor Yellow; Start-Sleep -Seconds 10 }; throw "Failed to pull model: $Model" }
+$Models=@("llama3.2:3b","qwen2.5:7b","qwen2.5-coder:7b","llama3.2-vision","nomic-embed-text")
+foreach($m in $Models){ Pull-WithRetry $m }
+Write-Host "All requested Ollama models are ready." -ForegroundColor Green

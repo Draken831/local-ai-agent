@@ -1,0 +1,14 @@
+{
+  "tools": [
+    "ollama_llm",
+    "ollama_vision",
+    "ollama_embeddings",
+    "searxng_web_search",
+    "url_fetch",
+    "document_parser",
+    "local_doc_index",
+    "quick_learned_answers",
+    "script_generation",
+    "gui"
+  ]
+}

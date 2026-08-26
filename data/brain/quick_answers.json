@@ -1,1 +1,60 @@
-[]
+[
+  {
+    "id": "qa.defender.first_check",
+    "title": "Microsoft Defender out of date - first check",
+    "priority": 100,
+    "match_all_groups": [["defender","microsoft defender","windows defender"],["out of date","not updating","signature","av"],["first check","quick check","quickest","what command","where do i start"]],
+    "exclude_any": ["latest","current","online","research"],
+    "answer_lines": ["## Quickest first check","","Run in PowerShell as Administrator:","","Get-MpComputerStatus | Select-Object AMServiceEnabled,AntivirusEnabled,RealTimeProtectionEnabled,AntivirusSignatureLastUpdated,AntispywareSignatureLastUpdated,AMEngineVersion,AntivirusSignatureVersion,AMRunningMode","","Also check services:","Get-Service WinDefend,WdNisSvc,Sense -ErrorAction SilentlyContinue | Select-Object Name,Status,StartType","","Send back those values."]
+  },
+  {
+    "id": "qa.windows.time_sync_first_check",
+    "title": "Windows time sync first check",
+    "priority": 95,
+    "match_all_groups": [["time sync","clock wrong","time drift","w32time","windows time"],["first check","quick check","what command","check"]],
+    "exclude_any": ["latest","current","online","research"],
+    "answer_lines": ["## Windows time sync first check","","Run in PowerShell as Administrator:","","w32tm /query /status","w32tm /query /configuration","w32tm /query /source","","Check service:","Get-Service W32Time | Select-Object Name,Status,StartType","","Send back Source, Stratum, Offset, Last sync time, and service status."]
+  },
+  {
+    "id": "qa.robocopy.files_in_use",
+    "title": "Robocopy skip locked files",
+    "priority": 90,
+    "match_all_groups": [["robocopy"],["files in use","locked","stuck","skip files"]],
+    "answer_lines": ["Use low retry/wait so Robocopy skips locked files:","","robocopy \"SOURCE\" \"DESTINATION\" /E /COPY:DAT /R:0 /W:0 /MT:16 /XJ /FFT /TEE /LOG+:\"C:\\NSU\\Robocopy.log\"","","For MIR dry-run first:","robocopy \"SOURCE\" \"DESTINATION\" /MIR /L /R:0 /W:0 /MT:16 /XJ /FFT /TEE /LOG+:\"C:\\NSU\\Robocopy_DryRun.log\""]
+  },
+  {
+    "id": "qa.adconnect.delta_sync",
+    "title": "Azure AD Connect delta sync",
+    "priority": 90,
+    "match_all_groups": [["delta sync","ad sync","azure ad connect","entra connect","adsync"]],
+    "answer_lines": ["Run on the Azure AD Connect server:","","Import-Module ADSync","Start-ADSyncSyncCycle -PolicyType Delta","","Validate:","Get-ADSyncScheduler"]
+  },
+  {
+    "id": "qa.rdp.first_check",
+    "title": "RDP first check",
+    "priority": 85,
+    "match_all_groups": [["rdp","remote desktop"],["first check","cannot connect","not connecting","what command"]],
+    "answer_lines": ["From the source machine:","Test-NetConnection <server-or-ip> -Port 3389","","On the server:","Get-Service TermService | Select Name,Status,StartType","Get-NetFirewallRule -DisplayGroup 'Remote Desktop' | Select DisplayName,Enabled,Profile,Action","Get-ItemProperty 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' | Select fDenyTSConnections"]
+  },
+  {
+    "id": "qa.dns.first_check",
+    "title": "DNS resolution first check",
+    "priority": 85,
+    "match_all_groups": [["dns","name resolution","nslookup","resolve"],["first check","quick check","what command","check"]],
+    "answer_lines": ["Run on the affected machine:","ipconfig /all","nslookup <hostname>","Resolve-DnsName <hostname>","Resolve-DnsName <hostname> -Server <dns-server-ip>","","For AD:","nltest /dsgetdc:<domain.local>","Resolve-DnsName _ldap._tcp.dc._msdcs.<domain.local> -Type SRV"]
+  },
+  {
+    "id": "qa.disk.first_check",
+    "title": "Windows disk space first check",
+    "priority": 85,
+    "match_all_groups": [["disk space","low disk","drive full","storage full"],["first check","quick check","what command","check"]],
+    "answer_lines": ["Run in PowerShell:","Get-PSDrive -PSProvider FileSystem | Select Name,Used,Free,@{Name='FreeGB';Expression={[math]::Round($_.Free/1GB,2)}}","","Top C folders:","Get-ChildItem C:\\ -Directory -ErrorAction SilentlyContinue | ForEach-Object { $s=(Get-ChildItem $_.FullName -Recurse -Force -ErrorAction SilentlyContinue | Measure Length -Sum).Sum; [PSCustomObject]@{Folder=$_.FullName; SizeGB=[math]::Round($s/1GB,2)} } | Sort SizeGB -Descending | Select -First 15"]
+  },
+  {
+    "id": "qa.linux.disk.first_check",
+    "title": "Linux disk space first check",
+    "priority": 80,
+    "match_all_groups": [["linux","ubuntu","debian","centos","rhel"],["disk space","drive full","low disk"]],
+    "answer_lines": ["Run:","df -h","lsblk","sudo du -xh / --max-depth=1 2>/dev/null | sort -h","journalctl --disk-usage"]
+  }
+]

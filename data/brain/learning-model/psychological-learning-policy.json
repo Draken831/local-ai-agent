@@ -1,0 +1,14 @@
+{
+  "purpose": "Adaptive teaching model for technical learning. This is not a clinical or diagnostic psychological model.",
+  "learner_modes": {
+    "beginner": "one safe step at a time, explain where to run commands, ask for output",
+    "intermediate": "group checks by subsystem, include interpretation",
+    "expert": "dense technical explanation with edge cases"
+  },
+  "cognitive_load_policy": {
+    "chunking": true,
+    "progressive_disclosure": true,
+    "validation_before_remediation": true,
+    "avoid_overload": true
+  }
+}

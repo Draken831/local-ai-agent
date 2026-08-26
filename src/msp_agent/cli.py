@@ -8,6 +8,7 @@ from rich.panel import Panel
 
 from .config import load_settings
 from .llm import AIClient, OllamaClient
+from .learning import add_item, backup as backup_quick_answers, list_items as list_quick_answers, remove_item, test_item, validate as validate_quick_answers
 from .router import choose_model, set_mode, get_mode
 from .quick_answers import get_quick_answer
 from .web_tools import build_research_context, should_use_online
@@ -16,6 +17,7 @@ from .script_policy import SCRIPT_SYSTEM_PROMPT
 console = Console()
 HELP = """/help /exit /status /models /pull <model> /quick <query>
 /mode <auto|fast|deep|code|doc|research|vision|status>
+/learn <count|list|test|validate|backup|remove|add>
 /search <query> /research <query>
 /doc <path> [question] /image <path> [question]
 /ingestdoc <path> /searchdocs <query> /docindex /cleardocindex
@@ -71,6 +73,50 @@ def handle_command(command, settings):
         return True
     if cmd == "/status":
         status(settings)
+        return True
+    if cmd in {"/learn", "/qa", "/knowledge"}:
+        action = parts[1].lower() if len(parts) > 1 else "help"
+        if action == "help":
+            console.print("/learn count | list | test <question> | validate | backup | remove <id> | add <title> <triggers> <answer>")
+            return True
+        if action == "count":
+            console.print(f"Quick answers: {len(list_quick_answers())}")
+            return True
+        if action == "list":
+            for item in list_quick_answers():
+                console.print(f"{item['priority']:>3}  {item['id']}  {item['title']}")
+            return True
+        if action == "validate":
+            console.print(validate_quick_answers())
+            return True
+        if action == "backup":
+            console.print(f"Backup: {backup_quick_answers()}")
+            return True
+        if action == "test":
+            question = " ".join(parts[2:])
+            answer = test_item(question)
+            console.print(Markdown(answer) if answer else "[yellow]No quick answer matched.[/yellow]")
+            return True
+        if action == "remove":
+            if len(parts) < 3:
+                console.print("Usage: /learn remove <local-override-id>")
+            else:
+                backup_quick_answers()
+                console.print("Removed." if remove_item(parts[2]) else "Not found in local overrides.")
+            return True
+        if action == "add":
+            if len(parts) < 5:
+                console.print('Usage: /learn add "Title" "trigger1,trigger2" "answer text"')
+                console.print("For multi-line answers, use the GUI Learn Quick button.")
+                return True
+            title = parts[2]
+            triggers = [x.strip() for x in parts[3].split(",") if x.strip()]
+            answer = " ".join(parts[4:])
+            backup_quick_answers()
+            item = add_item(title, [triggers], [answer], 70)
+            console.print(f"Added: {item['id']}")
+            return True
+        console.print("[yellow]Unknown /learn action.[/yellow]")
         return True
     if cmd == "/quick":
         query = " ".join(parts[1:])
