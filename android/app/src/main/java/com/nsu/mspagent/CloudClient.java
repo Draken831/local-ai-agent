@@ -5,9 +5,21 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * OpenAI-compatible cloud LLM client. Works unmodified with any provider
+ * that speaks the standard /chat/completions schema (OpenAI, Azure OpenAI,
+ * OpenRouter, Groq, Together, etc.) - change the base URL / API key in
+ * Settings to switch provider.
+ */
 public final class CloudClient {
     private final String base; private final String apiKey;
-    public CloudClient(String base, String apiKey) { this.base = base.replaceAll("/+$", ""); this.apiKey = apiKey; }
+    public CloudClient(String base, String apiKey) {
+        this.base = (base == null ? "" : base.trim()).replaceAll("/+$", "");
+        this.apiKey = apiKey;
+        if (!this.base.toLowerCase().startsWith("https://")) {
+            throw new IllegalArgumentException("Cloud API base URL must use HTTPS.");
+        }
+    }
 
     public boolean hasKey() { return apiKey != null && !apiKey.trim().isEmpty(); }
 
@@ -30,7 +42,8 @@ public final class CloudClient {
     public String vision(String model, String prompt, String base64, String mimeType) throws Exception {
         JSONArray content = new JSONArray();
         content.put(new JSONObject().put("type", "text").put("text", prompt));
-        content.put(new JSONObject().put("type", "image_url").put("image_url", new JSONObject().put("url", "data:" + mimeType + ";base64," + base64)));
+        content.put(new JSONObject().put("type", "image_url").put("image_url",
+            new JSONObject().put("url", "data:" + mimeType + ";base64," + base64)));
         JSONObject body = new JSONObject().put("model", model).put("temperature", 0.1).put("max_tokens", 900);
         JSONArray messages = new JSONArray().put(new JSONObject().put("role", "user").put("content", content));
         body.put("messages", messages);

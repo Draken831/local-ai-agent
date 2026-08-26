@@ -23,7 +23,7 @@ public final class HttpUtil {
     public static String get(String url, int timeoutMs, Map<String,String> headers) throws Exception {
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(timeoutMs); c.setReadTimeout(timeoutMs); c.setRequestMethod("GET");
-        c.setRequestProperty("User-Agent", "msp-local-agent-android/1.0");
+        c.setRequestProperty("User-Agent", "msp-ai-agent-android/1.3.1");
         if (headers != null) for (Map.Entry<String,String> e : headers.entrySet()) c.setRequestProperty(e.getKey(), e.getValue());
         return read(c);
     }

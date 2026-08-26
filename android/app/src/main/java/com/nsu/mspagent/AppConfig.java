@@ -6,11 +6,23 @@ import android.content.SharedPreferences;
 public final class AppConfig {
     private static final String PREFS = "msp_agent_config";
     private final SharedPreferences p;
-    public AppConfig(Context c) { p = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE); }
+    private final SecretStore secrets;
+    public AppConfig(Context c) {
+        p = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        secrets = new SecretStore(c);
+        // One-time migration from older plaintext SharedPreferences storage.
+        String legacyKey = p.getString("cloud_api_key", "");
+        if (legacyKey != null && !legacyKey.trim().isEmpty()) {
+            secrets.set(legacyKey);
+            p.edit().remove("cloud_api_key").apply();
+        }
+    }
 
+    // Provider order: cloud first, local (Ollama) last.
     public boolean cloudFirst() { return p.getBoolean("cloud_first", true); }
     public String cloudBaseUrl() { return p.getString("cloud_base_url", "https://api.openai.com/v1"); }
-    public String cloudApiKey() { return p.getString("cloud_api_key", ""); }
+    public String cloudApiKey() { return secrets.get(); }
+    public boolean hasCloudApiKey() { return secrets.hasValue(); }
     public String cloudFastModel() { return p.getString("cloud_model_fast", "gpt-4o-mini"); }
     public String cloudDeepModel() { return p.getString("cloud_model_deep", "gpt-4o"); }
     public String cloudCodeModel() { return p.getString("cloud_model_code", "gpt-4o"); }
@@ -18,8 +30,9 @@ public final class AppConfig {
     public String cloudResearchModel() { return p.getString("cloud_model_research", "gpt-4o-mini"); }
     public String cloudVisionModel() { return p.getString("cloud_model_vision", "gpt-4o-mini"); }
 
-    public String ollamaUrl() { return p.getString("ollama_url", "http://192.168.1.10:11434"); }
-    public String searxUrl() { return p.getString("searx_url", "http://192.168.1.10:8080"); }
+    // Local (Ollama) fallback.
+    public String ollamaUrl() { return p.getString("ollama_url", ""); }
+    public String searxUrl() { return p.getString("searx_url", ""); }
     public String fastModel() { return p.getString("model_fast", "llama3.2:3b"); }
     public String deepModel() { return p.getString("model_deep", "qwen2.5:7b"); }
     public String codeModel() { return p.getString("model_code", "qwen2.5-coder:7b"); }
@@ -35,7 +48,6 @@ public final class AppConfig {
         p.edit()
             .putBoolean("cloud_first", cloudFirst)
             .putString("cloud_base_url", trim(cloudBaseUrl))
-            .putString("cloud_api_key", cloudApiKey == null ? "" : cloudApiKey.trim())
             .putString("cloud_model_fast", trim(cloudFast)).putString("cloud_model_deep", trim(cloudDeep))
             .putString("cloud_model_code", trim(cloudCode)).putString("cloud_model_doc", trim(cloudDoc))
             .putString("cloud_model_research", trim(cloudResearch)).putString("cloud_model_vision", trim(cloudVision))
@@ -44,6 +56,9 @@ public final class AppConfig {
             .putString("model_code", trim(code)).putString("model_doc", trim(doc))
             .putString("model_research", trim(research)).putString("model_vision", trim(vision))
             .putBoolean("online_first", onlineFirst).apply();
+        if (cloudApiKey != null && !cloudApiKey.trim().isEmpty()) {
+            secrets.set(cloudApiKey);
+        }
     }
     private static String trim(String s) { return s == null ? "" : s.trim().replaceAll("/+$", ""); }
 }

@@ -1,15 +1,28 @@
 package com.nsu.mspagent;
 
+/**
+ * Cloud-first, local-last model client for chat and vision calls.
+ * Tries the cloud provider first (when cloud-first is on and an API key is
+ * set). If that call throws (no network, bad key, timeout, HTTP error) it
+ * automatically retries against the local Ollama host, so the app keeps
+ * working on the LAN / offline even if the cloud provider is unreachable.
+ */
 public final class HybridClient {
     private final AppConfig c;
-    private volatile String lastUsed = "local";
+    private volatile String lastUsed = "none";
 
     public HybridClient(AppConfig c) { this.c = c; }
 
     public String lastUsed() { return lastUsed; }
 
+    private void requireLocalConfigured() {
+        if (c.ollamaUrl() == null || c.ollamaUrl().trim().isEmpty()) {
+            throw new IllegalStateException("Local Ollama fallback is not configured. Set an Ollama base URL in Settings.");
+        }
+    }
+
     private boolean cloudActive() {
-        return c.cloudFirst() && new CloudClient(c.cloudBaseUrl(), c.cloudApiKey()).hasKey();
+        return c.cloudFirst() && c.cloudApiKey() != null && !c.cloudApiKey().trim().isEmpty();
     }
 
     public String chat(String role, String system, String user) throws Exception {
@@ -21,10 +34,12 @@ public final class HybridClient {
                 lastUsed = "cloud:" + cloudModel;
                 return out;
             } catch (Exception e) {
+                requireLocalConfigured();
                 lastUsed = "local:" + localModel + " (cloud failed: " + e.getMessage() + ")";
                 return new OllamaClient(c.ollamaUrl()).chat(localModel, system, user);
             }
         }
+        requireLocalConfigured();
         lastUsed = "local:" + localModel;
         return new OllamaClient(c.ollamaUrl()).chat(localModel, system, user);
     }
@@ -38,10 +53,12 @@ public final class HybridClient {
                 lastUsed = "cloud:" + cloudModel;
                 return out;
             } catch (Exception e) {
+                requireLocalConfigured();
                 lastUsed = "local:" + localModel + " (cloud failed: " + e.getMessage() + ")";
                 return new OllamaClient(c.ollamaUrl()).vision(localModel, prompt, base64);
             }
         }
+        requireLocalConfigured();
         lastUsed = "local:" + localModel;
         return new OllamaClient(c.ollamaUrl()).vision(localModel, prompt, base64);
     }

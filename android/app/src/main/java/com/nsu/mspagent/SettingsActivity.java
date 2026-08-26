@@ -2,22 +2,24 @@ package com.nsu.mspagent;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.widget.*;
 
 public class SettingsActivity extends Activity {
     @Override public void onCreate(Bundle b){ super.onCreate(b); AppConfig c=new AppConfig(this); LinearLayout p=Ui.page(this,"Connection & Models");
 
         p.addView(Ui.text(this,"Cloud (tried first)"));
-        CheckBox cloudFirst=new CheckBox(this); cloudFirst.setText("Cloud-first (fall back to local Ollama if unreachable)"); cloudFirst.setChecked(c.cloudFirst()); p.addView(cloudFirst);
+        CheckBox cloudFirst=new CheckBox(this); cloudFirst.setText("Cloud-first (recommended; local Ollama is fallback)"); cloudFirst.setChecked(c.cloudFirst()); p.addView(cloudFirst);
         EditText cloudBase=Ui.input(this,"Cloud API base URL (OpenAI-compatible)"); cloudBase.setText(c.cloudBaseUrl()); p.addView(cloudBase);
-        EditText cloudKey=Ui.input(this,"Cloud API key"); cloudKey.setText(c.cloudApiKey()); p.addView(cloudKey);
+        EditText cloudKey=Ui.input(this,"Cloud API key (leave blank to keep saved key)"); cloudKey.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD); p.addView(cloudKey);
+        p.addView(Ui.text(this, "API key securely stored: " + (c.hasCloudApiKey() ? "Yes" : "No")));
         EditText cFast=Ui.input(this,"Cloud fast model"); cFast.setText(c.cloudFastModel()); p.addView(cFast);
         EditText cDeep=Ui.input(this,"Cloud deep model"); cDeep.setText(c.cloudDeepModel()); p.addView(cDeep);
         EditText cCode=Ui.input(this,"Cloud code model"); cCode.setText(c.cloudCodeModel()); p.addView(cCode);
         EditText cDoc=Ui.input(this,"Cloud document model"); cDoc.setText(c.cloudDocModel()); p.addView(cDoc);
         EditText cResearch=Ui.input(this,"Cloud research model"); cResearch.setText(c.cloudResearchModel()); p.addView(cResearch);
         EditText cVision=Ui.input(this,"Cloud vision model"); cVision.setText(c.cloudVisionModel()); p.addView(cVision);
-        Button testCloud=Ui.button(this,"Test cloud connection"); testCloud.setOnClickListener(v->new Thread(()->{ try{ new CloudClient(cloudBase.getText().toString(),cloudKey.getText().toString()).health(); runOnUiThread(()->Toast.makeText(this,"Cloud reachable",Toast.LENGTH_LONG).show()); }catch(Exception e){ runOnUiThread(()->Toast.makeText(this,"Cloud connection failed: "+e.getMessage(),Toast.LENGTH_LONG).show()); }}).start()); p.addView(testCloud);
+        Button testCloud=Ui.button(this,"Test cloud connection"); testCloud.setOnClickListener(v->new Thread(()->{ try{ new CloudClient(cloudBase.getText().toString(), cloudKey.getText().toString().trim().isEmpty() ? c.cloudApiKey() : cloudKey.getText().toString()).health(); runOnUiThread(()->Toast.makeText(this,"Cloud reachable",Toast.LENGTH_LONG).show()); }catch(Exception e){ runOnUiThread(()->Toast.makeText(this,"Cloud connection failed: "+e.getMessage(),Toast.LENGTH_LONG).show()); }}).start()); p.addView(testCloud);
 
         p.addView(Ui.text(this,"Local fallback (Ollama)"));
         EditText oll=Ui.input(this,"Ollama base URL"); oll.setText(c.ollamaUrl()); p.addView(oll);

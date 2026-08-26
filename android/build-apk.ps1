@@ -1,5 +1,5 @@
 $ErrorActionPreference = 'Stop'
-Write-Host 'MSP Local AI Agent Android - APK build' -ForegroundColor Cyan
+Write-Host 'MSP AI Agent Android - APK build' -ForegroundColor Cyan
 if (-not (Get-Command gradle -ErrorAction SilentlyContinue)) {
     throw 'Gradle is not in PATH. Open the project in Android Studio, or install Gradle 9.5+ and rerun this script.'
 }
