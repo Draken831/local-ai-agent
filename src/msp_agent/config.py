@@ -87,6 +87,7 @@ class Settings:
     allow_destructive_actions: bool
     require_confirmation_for_high_risk: bool
 
+    # Backward compatibility with v4 modules.
     @property
     def request_timeout(self) -> int:
         return self.local_request_timeout
@@ -185,7 +186,7 @@ def load_settings(root: Path | None = None) -> Settings:
         dynamic_model_announce=_bool(env, "DYNAMIC_MODEL_ANNOUNCE", True),
 
         searxng_base_url=_get(env, "SEARXNG_BASE_URL", ""),
-        online_first_mode=_bool(env, "ONLINE_FIRST_MODE", False),
+        online_first_mode=_bool(env, "LOCAL_SEARXNG_PRECONTEXT", _bool(env, "ONLINE_FIRST_MODE", False)),
         online_research_max_results=_int(env, "ONLINE_RESEARCH_MAX_RESULTS", 5),
         online_research_fetch_top=_int(env, "ONLINE_RESEARCH_FETCH_TOP", 3),
         allow_private_urls=_bool(env, "ALLOW_PRIVATE_URLS", False),

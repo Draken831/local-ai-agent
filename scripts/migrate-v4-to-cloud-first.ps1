@@ -22,7 +22,7 @@ $replace = @(
     "src\msp_agent\llm.py",
     "src\msp_agent\cli.py",
     "src\msp_agent\gui.py",
-    "src\msp_agent\launcher.py",
+    "src\mp_agent\launcher.py",
     "src\msp_agent\quick_answers.py",
     "src\msp_agent\learning.py",
     "src\msp_agent\doc_indexer.py",
@@ -89,10 +89,11 @@ if(-not (Test-Path $envFile)){
         [System.IO.File]::WriteAllText($envFile,$text,$enc)
     }
 
-    # These values define the architecture. Enforce them during v4 -> v1.3.0 migration.
+    # These values define the architecture. Enforce them during v4 -> 1.3.1 migration.
     Set-EnvValue "AI_PROVIDER_ORDER" "cloud,local"
     Set-EnvValue "CLOUD_AI_ENABLED" "true"
     Set-EnvValue "CLOUD_WEB_SEARCH_ENABLED" "true"
+    Set-EnvValue "LOCAL_SEARXNG_PRECONTEXT" "false"
     Set-EnvValue "ONLINE_FIRST_MODE" "false"
     Set-EnvValue "LOCAL_FALLBACK_ENABLED" "true"
     Set-EnvValue "CLOUD_RETRIES" "0"
@@ -101,12 +102,12 @@ if(-not (Test-Path $envFile)){
 
 Set-Location $TargetRoot
 
-if(Test-Path ".\.venv\Scripts\python.exe"){
-    & ".\.venv\Scripts\python.exe" -m pip install -e .
+if(Test-Path ".\\.venv\\Scripts\\python.exe"){
+    & ".\\.venv\\Scripts\\python.exe" -m pip install -e .
     if($LASTEXITCODE -ne 0){ throw "pip reinstall failed." }
 
-    Get-ChildItem ".\src\msp_agent\*.py" | ForEach-Object {
-        & ".\.venv\Scripts\python.exe" -m py_compile $_.FullName
+    Get-ChildItem ".\\src\\msp_agent\\*.py" | ForEach-Object {
+        & ".\\.venv\\ucc\python.exe" -m py_compile $_.FullName
         if($LASTEXITCODE -ne 0){
             throw "Python compile validation failed: $($_.Name)"
         }

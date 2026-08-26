@@ -86,7 +86,7 @@ class AgentGUI:
 
         self._append(
             "SYSTEM",
-            "MSP AI Agent v1.3.0\n"
+            "MSP AI Agent v1.3.1\n"
             "Default interface: GUI\n"
             "Provider priority: cloud -> local fallback\n"
             "Ctrl+Enter sends the current message.",

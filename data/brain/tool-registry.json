@@ -1,14 +1,23 @@
 {
+  "version": "1.3.1",
+  "provider_priority": [
+    "cloud",
+    "local"
+  ],
+  "interface": "gui-default",
   "tools": [
-    "ollama_llm",
-    "ollama_vision",
-    "ollama_embeddings",
-    "searxng_web_search",
-    "url_fetch",
-    "document_parser",
-    "local_doc_index",
-    "quick_learned_answers",
-    "script_generation",
-    "gui"
+    {"name":"cloud_llm","priority":"primary"},
+    {"name":"cloud_web_search","priority":"primary-for-current-data"},
+    {"name":"cloud_embeddings","priority":"primary"},
+    {"name":"document_parser","priority":"local-utility"},
+    {"name":"script_generation","priority":"agent-capability"},
+    {"name":"gui","priority":"default-interface"},
+    {"name":"quick_learned_answers","priority":"explicit-local"},
+    {"name":"local_doc_index","priority":"local-utility"},
+    {"name":"searxng_web_search","priority":"explicit-local"},
+    {"name":"url_fetch","priority":"research-utility"},
+    {"name":"ollama_llm","priority":"fallback"},
+    {"name":"ollama_vision","priority":"fallback"},
+    {"name":"ollama_embeddings","priority":"fallback"}
   ]
 }

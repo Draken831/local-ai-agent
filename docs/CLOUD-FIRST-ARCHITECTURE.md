@@ -25,16 +25,17 @@ Local quick answers and local SearXNG are **not** automatically executed before 
 - circuit breaker after repeated failures
 - immediate local fallback while the cloud circuit is open
 
+## Runtime policy
+
+The authoritative machine-readable policy is `data/brain/runtime-policy.json`. `LOCAL_SEARXNG_PRECONTEXT=false` is the current setting name; legacy `ONLINE_FIRST_MODE` is read only for backward compatibility.
+
 ## Backward compatibility
 
-The loader still understands Hardened v4 names such as `MODEL_FAST`, `MODEL_DEEP`, `MODEL_CODE`,
-`MODEL_DOC`, `MODEL_RESEARCH`, `VISION_MODEL`, `EMBEDDING_MODEL`, `OLLAMA_MODEL`,
-`REQUEST_TIMEOUT`, and `MAX_RESPONSE_TOKENS`. Those values are treated as local fallback settings.
+The loader still understands Hardened v4 names such as `MODEL_FAST`, `MODEL_DEEP`, `MODEL_CODE`, `MODEL_DOC`, `MODEL_RESEARCH`, `VISION_MODEL`, `EMBEDDING_MODEL`, `OLLAMA_MODEL`, `REQUEST_TIMEOUT`, and `MAX_RESPONSE_TOKENS`. Those values are treated as local fallback settings.
 
 ## Security
 
-`.env` remains excluded from source control. API keys are loaded from environment variables or `.env`
-and are never stored in the repository.
+`.env` remains excluded from source control. API keys are loaded from environment variables or `.env` and are never stored in the repository.
 
 ## Interface architecture
 

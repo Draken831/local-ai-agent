@@ -1,6 +1,6 @@
 # MSP AI Agent — Cloud First / GUI Default
 
-This is the corrected **v1.3.0** runtime architecture for the MSP AI Agent.
+This is the corrected **v1.3.1** runtime architecture for the MSP AI Agent.
 
 ## Strict runtime priority
 
@@ -9,7 +9,7 @@ This is the corrected **v1.3.0** runtime architecture for the MSP AI Agent.
 3. **Cloud embeddings first** for document indexing/RAG when enabled.
 4. **Local SearXNG, quick answers, cache/RAG and Ollama only as explicit or fallback paths.**
 
-The earlier Hardened v4 implementation instantiated `OllamaClient` directly and could run local quick/search paths before cloud. v1.3.0 replaces that coupling with a provider gateway and keeps the normal request path cloud-first end-to-end.
+The earlier Hardened v4 implementation instantiated `OllamaClient` directly and could run local quick/search paths before cloud. v1.3.1 replaces that coupling with a provider gateway and keeps the normal request path cloud-first end-to-end.
 
 ## Speed / failover behavior
 
@@ -26,7 +26,7 @@ All values are configurable in `.env`.
 
 ## Default interface
 
-The agent now launches the **GUI by default**. You do not start the CLI and GUI separately.
+The agent launches the **GUI by default**. You do not start the CLI and GUI separately.
 
 - `msp-agent` -> GUI
 - `.\scripts\run.ps1` -> GUI
@@ -51,8 +51,6 @@ Never commit `.env` or API keys.
 
 ## Upgrade an existing Hardened v4 project
 
-From this corrected package/repository:
-
 ```powershell
 .\scripts\migrate-v4-to-cloud-first.ps1 -TargetRoot "C:\Projects\msp-local-ai-agent-fresh"
 ```
@@ -62,7 +60,7 @@ The migration backs up the files it replaces and preserves learned answers, uplo
 ## Single-script installer / updater
 
 ```powershell
-.\installers\Install-MSP-AI-Agent-CloudFirst-v1.3.0.ps1
+.\installers\Install-MSP-AI-Agent-CloudFirst-v1.3.1.ps1
 ```
 
 Use `-InstallPrereqs` if Python is missing. Use `-InstallLocalFallback` if you also want Ollama installed as the fallback provider.
@@ -105,3 +103,7 @@ Integrated additions include:
 - the uploaded cloud-first Windows source retained under `legacy/uploaded-2026-08-26` where its provider modules are superseded by the current gateway.
 
 The uploaded `.env` is intentionally **not committed**. Use `.env.example` and keep live credentials only in `.env`.
+
+## Architecture metadata
+
+Current machine-readable policy is stored in `data/brain/runtime-policy.json`. It defines GUI-default operation, `cloud -> local` provider priority, and local services as fallback or explicit paths only.

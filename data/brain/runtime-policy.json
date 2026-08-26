@@ -1,0 +1,23 @@
+{
+  "version": "1.3.1",
+  "interface": "gui-default",
+  "provider_priority": [
+    "cloud",
+    "local"
+  ],
+  "cloud": {
+    "enabled_by_default": true,
+    "connect_timeout_seconds": 3,
+    "read_timeout_seconds": 15,
+    "automatic_retries": 0,
+    "circuit_breaker_failures": 2,
+    "circuit_breaker_seconds": 30,
+    "web_search_for_research": true
+  },
+  "local": {
+    "fallback_enabled_by_default": true,
+    "ollama_usage": "fallback-or-explicit-only",
+    "searxng_precontext_by_default": false,
+    "quick_answers_usage": "explicit-only"
+  }
+}

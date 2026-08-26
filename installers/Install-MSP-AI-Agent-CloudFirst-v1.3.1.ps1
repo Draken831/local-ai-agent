@@ -1,5 +1,5 @@
 <#
-MSP AI Agent - Cloud First / Local Fallback v1.2.0
+MSP AI Agent - Cloud First / Local Fallback 1.3.1
 Bootstrap installer/updater for the GitHub-published project.
 
 Behavior:
@@ -115,7 +115,7 @@ $zipPath = "$tempRoot.zip"
 $extractRoot = "$tempRoot-extract"
 New-Item -ItemType Directory -Path $extractRoot -Force | Out-Null
 
-Write-Host "Downloading cloud-first v1.2.0 source..." -ForegroundColor Cyan
+Write-Host "Downloading cloud-first 1.3.1 source..." -ForegroundColor Cyan
 Invoke-WebRequest -Uri $RepositoryZipUrl -OutFile $zipPath -UseBasicParsing
 Expand-Archive -Path $zipPath -DestinationPath $extractRoot -Force
 
@@ -146,6 +146,8 @@ if($envBackup){
 Set-EnvValue $envFile "AI_PROVIDER_ORDER" "cloud,local"
 Set-EnvValue $envFile "CLOUD_AI_ENABLED" "true"
 Set-EnvValue $envFile "CLOUD_WEB_SEARCH_ENABLED" "true"
+Set-EnvValue $envFile "LOCAL_SEARXNG_PRECONTEXT" "false"
+# Legacy compatibility: explicitly neutralize old pre-cloud SearXNG flag.
 Set-EnvValue $envFile "ONLINE_FIRST_MODE" "false"
 Set-EnvValue $envFile "LOCAL_FALLBACK_ENABLED" "true"
 Set-EnvValue $envFile "CLOUD_RETRIES" "0"
@@ -159,7 +161,7 @@ Set-Location $TargetRoot
 if($LASTEXITCODE -ne 0){ throw "Project setup failed." }
 
 Write-Host ""
-Write-Host "Cloud-first v1.2.0 install/update complete." -ForegroundColor Green
+Write-Host "Cloud-first 1.3.1 install/update complete." -ForegroundColor Green
 Write-Host "Target: $TargetRoot"
 Write-Host "Provider priority: cloud -> local"
 Write-Host "Set CLOUD_API_KEY in: $envFile"
