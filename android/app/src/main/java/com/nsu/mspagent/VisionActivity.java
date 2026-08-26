@@ -1,0 +1,10 @@
+package com.nsu.mspagent;
+
+import android.app.*; import android.content.*; import android.net.Uri; import android.os.Bundle; import android.util.Base64; import android.widget.*; import java.io.*; import java.util.concurrent.*;
+public class VisionActivity extends Activity {
+    private static final int PICK=1002; private Uri uri; private TextView status; private EditText prompt; private final ExecutorService ex=Executors.newSingleThreadExecutor();
+    @Override public void onCreate(Bundle b){super.onCreate(b);LinearLayout p=Ui.page(this,"Vision / Screenshot Analysis");Button pick=Ui.button(this,"Select Image or Screenshot");pick.setOnClickListener(v->{Intent i=new Intent(Intent.ACTION_OPEN_DOCUMENT);i.setType("image/*");i.addCategory(Intent.CATEGORY_OPENABLE);startActivityForResult(i,PICK);});p.addView(pick);status=Ui.text(this,"No image selected");p.addView(status);prompt=Ui.input(this,"What should the agent inspect?");prompt.setText("Analyze this screenshot for the technical fault and give the next troubleshooting steps.");p.addView(prompt);Button run=Ui.button(this,"Analyze Image");run.setOnClickListener(v->analyze());p.addView(run);setContentView(Ui.scroll(this,p));}
+    @Override protected void onActivityResult(int r,int c,Intent d){super.onActivityResult(r,c,d);if(r==PICK&&c==RESULT_OK&&d!=null){uri=d.getData();status.setText("Selected: "+uri);}}
+    private void analyze(){if(uri==null)return;status.setText("Analyzing...");ex.submit(()->{try{InputStream in=getContentResolver().openInputStream(uri);ByteArrayOutputStream o=new ByteArrayOutputStream();byte[] b=new byte[8192];int n;while((n=in.read(b))>0)o.write(b,0,n);in.close();String mime=getContentResolver().getType(uri);if(mime==null)mime="image/png";String b64=Base64.encodeToString(o.toByteArray(),Base64.NO_WRAP);AppConfig c=new AppConfig(this);HybridClient hc=new HybridClient(c);String ans=hc.vision(prompt.getText().toString(),b64,mime);runOnUiThread(()->status.setText("["+hc.lastUsed()+"]\n"+ans));}catch(Exception e){runOnUiThread(()->status.setText("ERROR: "+e.getMessage()));}});}
+    @Override protected void onDestroy(){ex.shutdownNow();super.onDestroy();}
+}

@@ -1,28 +1,18 @@
-Build status for Android branch
-===============================
-Architecture target: STRICT CLOUD FIRST / LOCAL FALLBACK
-Shared provider contract: v1.1.1
-Cloud-first runtime architecture: CORRECTED / DOCUMENTED
-Android SDK/build-tools in prior generation environment: NOT AVAILABLE
-Compiled APK: NOT PRODUCED IN THAT ENVIRONMENT
+Build status for Android cloud-first source
+===========================================
+Source package: COMPLETE
+Source version: 1.3.0
+Provider priority: CLOUD FIRST / LOCAL FALLBACK
+Cloud request timeout: 15 seconds
+Local quick-answer path: EXPLICIT
+Local SearXNG pre-context: DISABLED BY DEFAULT
 
-Required Android runtime behavior:
-- Primary inference: configured cloud/API provider
-- Cloud-native research/web path before local research when supported
-- Short cloud connect/read timeouts
-- Zero automatic cloud retries by default for speed
-- Circuit-breaker/fail-fast behavior after repeated cloud failures
-- Local/on-device or LAN Ollama only as fallback
-- No local quick-answer/search/model path ahead of a healthy cloud provider
-- No API keys committed to GitHub or embedded in the APK
-- Android secure storage/runtime configuration for credentials
+Android SDK/build-tools in this environment: NOT AVAILABLE
+Compiled APK: NOT PRODUCED IN THIS ENVIRONMENT
 
-Desktop/runtime reference implementation:
-- main branch commit: ea97aa2a36d79daf19fa114285f929cb2ae3d0f7
-- version: v1.1.1
-
-Previously recorded Android target:
+Project configuration:
 - Android 16 / API 36
 - Android Gradle Plugin 9.3.0
-
-This branch remains reserved for Android source/build artifacts and the signed installable APK once a real APK is produced.
+- Java 17
+- minSdk 29
+- targetSdk 36

@@ -1,30 +1,9 @@
-# Local AI Agent — Android Branch
+# MSP AI Agent — Android Cloud First
 
-This branch is reserved for Android source/build/APK deliverables and follows the same **v1.1.1 strict cloud-first / local-fallback** provider contract as `main`.
+This branch contains the full native Android source for **v1.3.0**.
 
-## Runtime priority
+Provider priority is **cloud first -> local fallback**. Normal chat no longer invokes Local Quick before cloud; Local Quick is an explicit UI action. Local SearXNG pre-context is disabled by default. Cloud chat and vision use a 15-second timeout so failed cloud calls fall back promptly.
 
-1. Cloud inference first.
-2. Cloud-native web search for research/current-information routes when supported.
-3. Local/on-device or LAN services only as explicit or fallback paths.
-4. Ollama/local model inference last.
+Source lives under `android/`.
 
-The Android implementation must not execute local quick-answer, local search, or local model paths ahead of a healthy configured cloud provider.
-
-## Speed / failover contract
-
-- short cloud connect/read timeouts;
-- zero automatic cloud retries by default;
-- circuit breaker after repeated cloud failures;
-- local fallback only after cloud is unavailable, fails, times out, or is explicitly bypassed.
-
-## Security
-
-No cloud API key may be committed to GitHub or embedded as a plaintext constant in an APK. Android credentials must be supplied at runtime and stored using Android secure storage mechanisms.
-
-## Build status
-
-The provider architecture is corrected and documented. A real compiled APK is **not yet present on this branch** because the prior generation environment did not have the Android SDK/build tools required to compile it.
-
-- `main` — corrected desktop/runtime source v1.1.1
-- `android-apk` — Android source/build/APK deliverables
+A compiled APK is not included because the current build environment does not contain the Android SDK/build tools. Build with Android Studio or `android/build-apk.ps1` on a machine with the Android SDK and compatible Gradle tooling.

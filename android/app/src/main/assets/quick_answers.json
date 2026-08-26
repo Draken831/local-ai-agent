@@ -1,0 +1,26 @@
+[
+  {
+    "id":"qa.defender.first_check",
+    "priority":100,
+    "match_all_groups":[["defender","microsoft defender","windows defender"],["out of date","not updating","signature","av"],["first check","quick check","quickest","what command","where do i start"]],
+    "answer_lines":["Quickest first check","","Run in PowerShell as Administrator:","","Get-MpComputerStatus | Select-Object AMServiceEnabled,AntivirusEnabled,RealTimeProtectionEnabled,AntivirusSignatureLastUpdated,AntispywareSignatureLastUpdated,AMEngineVersion,AntivirusSignatureVersion,AMRunningMode","","Also check services:","Get-Service WinDefend,WdNisSvc,Sense -ErrorAction SilentlyContinue | Select-Object Name,Status,StartType"]
+  },
+  {
+    "id":"qa.windows.time_sync_first_check",
+    "priority":95,
+    "match_all_groups":[["time sync","clock wrong","time drift","w32time","windows time"],["first check","quick check","what command","check"]],
+    "answer_lines":["Windows time sync first check","","w32tm /query /status","w32tm /query /configuration","w32tm /query /source","","Get-Service W32Time | Select-Object Name,Status,StartType"]
+  },
+  {
+    "id":"qa.robocopy.files_in_use",
+    "priority":90,
+    "match_all_groups":[["robocopy"],["files in use","locked","stuck","skip files"]],
+    "answer_lines":["Use low retry/wait so Robocopy skips locked files:","","robocopy \"SOURCE\" \"DESTINATION\" /E /COPY:DAT /R:0 /W:0 /MT:16 /XJ /FFT /TEE /LOG+:\"C:\\NSU\\Robocopy.log\""]
+  },
+  {
+    "id":"qa.adconnect.delta_sync",
+    "priority":85,
+    "match_all_groups":[["azure ad connect","entra connect","ad connect"],["delta sync","sync now","force sync"]],
+    "answer_lines":["Run on the Entra/Azure AD Connect server:","","Import-Module ADSync","Start-ADSyncSyncCycle -PolicyType Delta"]
+  }
+]
